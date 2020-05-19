@@ -1191,12 +1191,6 @@ Please use the format 'my-instance' or '${bigtable.projectName}/instances/my-ins
  */
 Instance.prototype.getTablesStream = paginator.streamify<Table>('getTables');
 
-// /*! Developer Documentation
-//  *
-//  * These methods can be auto-paginated.
-//  */
-// paginator.extend(Instance, ['getTables']);
-
 /*! Developer Documentation
  *
  * All async methods (except for streams) will return a Promise in the event
