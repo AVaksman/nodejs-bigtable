@@ -942,7 +942,7 @@ Please use the format 'my-instance' or '${bigtable.projectName}/instances/my-ins
         client: 'BigtableTableAdminClient',
         method: 'listTables',
         reqOpts,
-        gaxOpts: options.gaxOptions,
+        gaxOpts,
       },
       (err, ITables, ...args) => {
         if (err) {
