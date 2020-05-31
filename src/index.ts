@@ -759,7 +759,23 @@ export class Bigtable {
           gaxStream.cancel();
         }
       };
-
+      // if (config.method === 'listTablesStream') {
+      //   stream.once('reading', () => {
+      //     prepareGaxRequest((err, requestFn) => {
+      //       if (err) {
+      //         stream.destroy(err);
+      //         return;
+      //       }
+      //       requestFn!()
+      //         .on('error', (err: Error) => {
+      //           stream.destroy(err);
+      //         })
+      //         .pipe(stream);
+      //     });
+      //   });
+      // } else {
+      //   stream.once('reading', makeRequestStream);
+      // }
       stream.once('reading', makeRequestStream);
 
       return stream;

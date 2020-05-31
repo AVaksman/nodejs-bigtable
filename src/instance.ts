@@ -14,9 +14,14 @@
 
 import {paginator, ResourceStream} from '@google-cloud/paginator';
 import {promisifyAll} from '@google-cloud/promisify';
+import {Duplex} from 'stream';
 import arrify = require('arrify');
 import * as is from 'is';
 import * as extend from 'extend';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pumpify = require('pumpify');
+import * as through from 'through2';
+
 import snakeCase = require('lodash.snakecase');
 import {
   AppProfile,
@@ -960,6 +965,45 @@ Please use the format 'my-instance' or '${bigtable.projectName}/instances/my-ins
     );
   }
 
+  getTablesStream2(options: GetTablesOptions = {}): Duplex {
+    const gaxOpts = extend(true, {}, options.gaxOptions);
+    let reqOpts = Object.assign({}, options, {
+      parent: this.name,
+      view: Table.VIEWS[options.view || 'unspecified'],
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (reqOpts as any).gaxOptions;
+
+    // Copy over pageSize and pageToken values from gaxOptions.
+    // However values set on options take precedence.
+    if (gaxOpts) {
+      reqOpts = extend(
+        {},
+        {
+          pageSize: gaxOpts.pageSize,
+          pageToken: gaxOpts.pageToken,
+        },
+        reqOpts
+      );
+      delete gaxOpts.pageSize;
+      delete gaxOpts.pageToken;
+    }
+    return pumpify.obj([
+      this.bigtable.request({
+        client: 'BigtableTableAdminClient',
+        method: 'listTablesStream',
+        reqOpts,
+        gaxOpts,
+      }),
+      through.obj((ITable: google.bigtable.admin.v2.ITable, enc, next) => {
+        const table = this.table(ITable.name!.split('/').pop()!);
+        table.metadata = ITable;
+        next(null, table);
+      }),
+    ]);
+  }
+
   setIamPolicy(
     policy: Policy,
     gaxOptions?: CallOptions
@@ -1197,7 +1241,7 @@ Instance.prototype.getTablesStream = paginator.streamify<Table>('getTables');
  * that a callback is omitted.
  */
 promisifyAll(Instance, {
-  exclude: ['appProfile', 'cluster', 'table'],
+  exclude: ['appProfile', 'cluster', 'table', 'getTablesStream2'],
 });
 
 /**

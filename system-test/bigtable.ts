@@ -269,6 +269,20 @@ describe('Bigtable', () => {
         })
         .on('end', () => {
           assert(tables.length > 0);
+          console.log(`retreaved ${tables.length} tables`);
+          done();
+        });
+    });
+
+    it('gettablesstream2', done => {
+      const tables = [];
+      INSTANCE.getTablesStream2()
+        .on('error', assert.ifError)
+        .on('data', (table: Table) => {
+          tables.push(table);
+        })
+        .on('end', () => {
+          console.log(`retreaved ${tables.length} tables`);
           done();
         });
     });
