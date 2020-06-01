@@ -290,7 +290,8 @@ describe('Bigtable', () => {
         allowTransactionalWrites: true,
         description: 'My Updated App Profile',
       };
-      await APP_PROFILE.setMetadata(options);
+      const [operation] = await APP_PROFILE.setMetadata(options);
+      await operation.promise();
       const [updatedAppProfile] = await APP_PROFILE.get();
       assert.strictEqual(
         updatedAppProfile.metadata!.description,
