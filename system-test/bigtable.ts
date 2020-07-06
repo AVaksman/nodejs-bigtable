@@ -24,6 +24,7 @@ import {Family} from '../src/family.js';
 import {Row} from '../src/row.js';
 import {Table} from '../src/table.js';
 import {RawFilter} from '../src/filter';
+import {GetAppProfilesOptions} from '../src/instance';
 
 const PREFIX = 'gcloud-tests-';
 
@@ -161,6 +162,32 @@ describe('Bigtable', () => {
     it('should retrieve a list of app profiles', async () => {
       const [appProfiles] = await INSTANCE.getAppProfiles();
       assert(appProfiles[0] instanceof AppProfile);
+    });
+
+    it('should paginate to retrieve a list of app profiles', async () => {
+      let allAppProfiles: AppProfile[] = [];
+      const pageSize = 1;
+      let calledTimes = 0;
+      let getAppProfilesOptions: GetAppProfilesOptions = {
+        gaxOptions: {autoPaginate: false},
+        pageSize,
+      };
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const [appProfiles, next] = await INSTANCE.getAppProfiles(
+          getAppProfilesOptions
+        );
+        calledTimes++;
+        assert.strictEqual(appProfiles.length, pageSize);
+        allAppProfiles = [...allAppProfiles, ...appProfiles];
+        if (!next) {
+          break;
+        }
+        getAppProfilesOptions = next;
+      }
+      assert(allAppProfiles[0] instanceof AppProfile);
+      // This assert relies that pageSize = 1.
+      assert.strictEqual(calledTimes, allAppProfiles.length);
     });
 
     it('should check if an app profile exists', async () => {
