@@ -146,6 +146,7 @@ export type GetInstanceMetadataResponse = [IInstance];
 export type SetInstanceMetadataCallback = LROCallback;
 export type SetInstanceMetadataResponse = [Operation, IOperation];
 export interface PagedOptions {
+  autoPaginate?: boolean;
   pageSize?: number;
   pageToken?: string;
   gaxOptions?: CallOptions;
@@ -671,6 +672,7 @@ Please use the format 'my-instance' or '${bigtable.projectName}/instances/my-ins
    * Get App Profile objects for this instance.
    *
    * @param {object} [options] Query object.
+   * @param {boolean} [options.autoPaginate=true] Have pagination handled.
    * @param {object} [options.gaxOptions] Request configuration options, outlined here:
    *     https://googleapis.github.io/gax-nodejs/CallSettings.html.
    * @property {number} [options.pageSize] Maximum number of results per page.
@@ -700,6 +702,15 @@ Please use the format 'my-instance' or '${bigtable.projectName}/instances/my-ins
       typeof optionsOrCallback === 'function' ? optionsOrCallback : cb!;
 
     const gaxOpts = extend(true, {}, options.gaxOptions);
+    // Copy over autoPaginate value from options.
+    // However values set on options.gaxOptions take precedence.
+    if (
+      is.boolean(options.autoPaginate) &&
+      is.undefined(gaxOpts.autoPaginate)
+    ) {
+      gaxOpts.autoPaginate = options.autoPaginate;
+    }
+
     let reqOpts = extend({}, options, {parent: this.name});
     delete reqOpts.gaxOptions;
 
@@ -913,6 +924,7 @@ Please use the format 'my-instance' or '${bigtable.projectName}/instances/my-ins
    * Get Table objects for all the tables in your Cloud Bigtable instance.
    *
    * @param {object} [options] Query object.
+   * @param {boolean} [options.autoPaginate=true] Have pagination handled.
    * @param {object} [options.gaxOptions] Request configuration options, outlined
    *     here: https://googleapis.github.io/gax-nodejs/global.html#CallOptions.
    * @property {number} [options.pageSize] Maximum number of results per page.
@@ -940,6 +952,15 @@ Please use the format 'my-instance' or '${bigtable.projectName}/instances/my-ins
       typeof optionsOrCallback === 'function' ? optionsOrCallback : cb!;
 
     const gaxOpts = extend(true, {}, options.gaxOptions);
+    // Copy over autoPaginate value from options.
+    // However values set on options.gaxOptions take precedence.
+    if (
+      is.boolean(options.autoPaginate) &&
+      is.undefined(gaxOpts.autoPaginate)
+    ) {
+      gaxOpts.autoPaginate = options.autoPaginate;
+    }
+
     let reqOpts = Object.assign({}, options, {
       parent: this.name,
       view: Table.VIEWS[options.view || 'unspecified'],
