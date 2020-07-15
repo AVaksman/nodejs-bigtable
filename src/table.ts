@@ -37,7 +37,7 @@ import {Mutation} from './mutation';
 import {Row} from './row';
 import {ChunkTransformer} from './chunktransformer';
 import {CallOptions} from 'google-gax';
-import {Bigtable, AbortableDuplex, PagedCallback} from '.';
+import {Bigtable, AbortableDuplex} from '.';
 import {Instance, PagedOptions} from './instance';
 import {google} from '../protos/protos';
 import {Duplex} from 'stream';
@@ -323,11 +323,17 @@ export type GetTableCallback = (
   apiResponse?: google.bigtable.admin.v2.ITable
 ) => void;
 export type GetTableResponse = [Table, google.bigtable.admin.v2.Table];
-export type GetTablesCallback = PagedCallback<
-  Table,
-  google.bigtable.admin.v2.IListTablesResponse
->;
-export type GetTablesResponse = [Table[], {}, google.bigtable.admin.v2.Table[]];
+export type GetTablesCallback = (
+  err: ServiceError | null,
+  tables?: Table[],
+  nextQuery?: GetTablesOptions | null,
+  apiResponse?: google.bigtable.admin.v2.IListTablesResponse | null
+) => void;
+export type GetTablesResponse = [
+  Table[],
+  GetTablesOptions,
+  google.bigtable.admin.v2.Table[]
+];
 export type GetFamiliesCallback = (
   err: ServiceError | null,
   families?: Family[],
